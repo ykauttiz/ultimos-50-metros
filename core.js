@@ -38,4 +38,8 @@ function mergeHistory(current, incoming) {
   // Registros locais ganham o desempate quando duas observações têm a mesma data.
   return [...additions, ...current];
 }
-if (typeof module !== "undefined") module.exports = {queue, inspect, mergeHistory};
+function history(records) {
+  return records.slice().reverse().map(record => ({...record, status: inspect(record)}))
+    .sort((a,b) => b.date.localeCompare(a.date));
+}
+if (typeof module !== "undefined") module.exports = {queue, inspect, mergeHistory, history};

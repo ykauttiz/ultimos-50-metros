@@ -15,7 +15,13 @@ function read() {
   records.forEach(inspect);
   return records;
 }
-const draw = records => show(queue(records).map(r=>[r.point,r.date,r.status,r.note]));
+let displayed = [];
+function draw(records) {
+  displayed = records;
+  const sorted = find("#mode").value === "history" ? history(records) : queue(records);
+  show(sorted.map(r => [r.point, r.date, r.status, ...parts.map(part => r[part]), r.note]));
+}
+find("#mode").onchange = () => draw(displayed);
 for (const part of parts) {
   const label = document.createElement("label"), select = document.createElement("select");
   label.textContent = part;

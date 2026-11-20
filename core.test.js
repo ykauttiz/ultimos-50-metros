@@ -18,3 +18,9 @@ test("restauração cumulativa, repetível e com desempate local",()=>{
   assert.equal(queue(merged)[0].note,local.note);
   assert.throws(()=>mergeHistory([local],[entry,{date:"inválida"}]));
 });
+test("histórico mantém as visitas anteriores e a ordem em datas iguais",()=>{
+  const {history} = require("./core");
+  const records = [entry,{...entry,date:"2026-12-10",note:"segunda"},{...entry,date:"2026-12-10",note:"terceira"}];
+  assert.deepEqual(history(records).map(r=>r.note),["terceira","segunda",entry.note]);
+  assert.equal(records[0],entry);
+});
