@@ -4,6 +4,6 @@
 <form><label>Ponto<input required id="point" maxlength="120" placeholder="Ex. Praça das Flores · sentido centro"></label>
 <label>Data da vistoria<input required id="date" type="date"></label><div id="parts"></div>
 <label>Observação<textarea id="note" maxlength="600"></textarea></label><button>Salvar vistoria</button></form>
-<button id="demo">Ver exemplo fictício</button> <button id="export">Exportar histórico JSON</button>
+<button id="demo">Ver exemplo fictício</button> <button id="export">Exportar histórico JSON</button><label>Restaurar histórico JSON<input type="file" accept=".json,application/json" id="restore"></label>
 <p>A lista prioriza barreiras e trechos sem vistoria. Cada linha mostra a observação mais recente daquele ponto.</p>
 <table><thead><tr><th>Ponto</th><th>Data</th><th>Prioridade</th><th>Observação</th></tr></thead><tbody></tbody></table><p role="status" id="message"></p></main><script src="core.js"></script><script src="app.js"></script></html>

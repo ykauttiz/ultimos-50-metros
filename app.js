@@ -48,3 +48,21 @@ find("#export").onclick = () => {
   } catch(error) {find("#message").textContent = error.message;}
 };
 try {draw(read());} catch(error) {find("#message").textContent = error.message;}
+
+find("#restore").onchange = async event => {
+  const picker = event.target;
+  const file = picker.files[0];
+  if (!file) return;
+  try {
+    const incoming = JSON.parse(await file.text());
+    const current = read();
+    const records = mergeHistory(current, incoming);
+    localStorage.setItem(key, JSON.stringify(records));
+    draw(records);
+    find("#message").textContent = (records.length - current.length) + " vistoria(s) acrescentada(s).";
+  } catch (error) {
+    find("#message").textContent = "Falha ao importar: " + error.message;
+  } finally {
+    picker.value = "";
+  }
+};

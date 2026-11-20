@@ -21,4 +21,21 @@ function queue(records) {
   const priority = ["Revisar barreira","Completar vistoria","Vistoria completa"];
   return [...latest.values()].sort((a,b) => priority.indexOf(a.status)-priority.indexOf(b.status) || a.date.localeCompare(b.date));
 }
-if (typeof module !== "undefined") module.exports = {queue, inspect};
+function mergeHistory(current, incoming) {
+  if (!Array.isArray(incoming)) throw Error("O backup precisa conter uma lista de vistorias.");
+  const signature = r => JSON.stringify([r.point.trim().toLocaleLowerCase("pt-BR"), r.date,
+    ...parts.map(part => r[part]), r.note]);
+  const seen = new Set(current.map(signature));
+  const additions = [];
+  for (const record of incoming) {
+    inspect(record);
+    const id = signature(record);
+    if (!seen.has(id)) {
+      seen.add(id);
+      additions.push(record);
+    }
+  }
+  // Registros locais ganham o desempate quando duas observações têm a mesma data.
+  return [...additions, ...current];
+}
+if (typeof module !== "undefined") module.exports = {queue, inspect, mergeHistory};

@@ -10,3 +10,11 @@ test("data impossível e estado desconhecido",()=>{
   assert.throws(()=>inspect({...entry,date:"2026-02-31"}));
   assert.throws(()=>inspect({...entry,calçada:"talvez"}));
 });
+test("restauração cumulativa, repetível e com desempate local",()=>{
+  const {mergeHistory} = require("./core");
+  const local = {...entry, note:"nova observação"};
+  const merged = mergeHistory([local],[entry,entry]);
+  assert.deepEqual(mergeHistory(merged,[entry,local]),merged);
+  assert.equal(queue(merged)[0].note,local.note);
+  assert.throws(()=>mergeHistory([local],[entry,{date:"inválida"}]));
+});
