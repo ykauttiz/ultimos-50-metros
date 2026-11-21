@@ -15,7 +15,7 @@ Thread(target=server.serve_forever, daemon=True).start()
 with sync_playwright() as p, TemporaryDirectory() as tmp:
     backend = os.environ.get("ENGINE", "chromium")
     browser = getattr(p, backend).launch(executable_path=shutil.which("google-chrome") if backend == "chromium" else None)
-    for width in (375, 1280):
+    for width in (320, 375, 1280):
         page = browser.new_page(viewport={"width": width, "height": 850}, accept_downloads=True)
         errors = []
         page.on("pageerror", lambda error: errors.append(str(error)))

@@ -2,6 +2,8 @@
 
 ## 2026-11-21
 
+Os testes de interface também exercitam telas de 320 pixels.
+
 A fila e o histórico usam o horário do registro para ordenar vistorias do mesmo dia após restaurar um backup. Grafias Unicode equivalentes identificam o mesmo ponto.
 
 Cada vistoria aceita uma foto opcional. Ao selecionar um arquivo, o caderno cria um JPEG de até 640 pixels a partir dos pixels da imagem. O backup JSON inclui a cópia. CSV, ficha impressa e GeoJSON omitem a foto.
