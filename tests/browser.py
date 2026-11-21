@@ -31,6 +31,16 @@ with sync_playwright() as p, TemporaryDirectory() as tmp:
         page.locator("#lon").fill("-48.95")
         page.locator("#note").fill("Texto reservado ao histórico")
         page.get_by_text("Salvar vistoria",exact=True).click()
+        page.get_by_role("button",name="Revisar barreira · 0").click()
+        expect(page.locator("#rows tr")).to_have_count(0)
+        expect(page.locator("#geo")).to_be_disabled()
+        page.get_by_role("button",name="Completar vistoria · 1").click()
+        expect(page.locator("#rows tr")).to_have_count(1)
+        page.get_by_role("button",name="Completar vistoria · 1").click()
+        page.evaluate("window.dispatchEvent(new Event('beforeprint'))")
+        expect(page.locator("#visit-sheet tbody tr")).to_have_count(1)
+        assert "Texto reservado" not in page.locator("#visit-sheet").text_content()
+        page.evaluate("window.dispatchEvent(new Event('afterprint'))")
         with page.expect_download() as geo:
             page.locator("#geo").click()
         import json

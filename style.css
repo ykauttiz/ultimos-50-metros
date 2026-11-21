@@ -27,3 +27,20 @@ button { background:#e7ede1; color:#234a39; border-color:#8ba08f }
 #origin { margin-bottom:.25rem } #summary { margin-top:0 }
 .skip { position:absolute; transform:translateY(-150%); z-index:5; background:white;padding:.6rem }.skip:focus{transform:none}
 @media(max-width:860px){.field-layout{grid-template-columns:1fr}.hero p{max-width:72%}.route-art{inset-inline-start:78%}}
+#priorities {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,9rem),1fr));gap:.5rem}
+#priorities button {border-top:4px solid #37745d;text-align:left;background:#f0f4ea}
+#priorities button:first-child {border-top-color:#99501f}
+#priorities button:nth-child(2) {border-top-color:#9e802b}
+#priorities button[aria-pressed=true] {background:#234d3e;color:white}
+#priority-summary {font-size:.9rem}
+#visit-comparison li {padding:.45rem .2rem;border-bottom:1px solid #c4d3c2}
+#visit-sheet {display:none}
+@media print {
+  :root,body {background:white;color:black}
+  body {max-width:none;padding:0}
+  body > :not(#visit-sheet) {display:none!important}
+  #visit-sheet {display:block}
+  #visit-sheet table {min-width:0;font-size:10pt}
+  #visit-sheet th,#visit-sheet td {color:black;padding:.4em;border-bottom:1px solid #999}
+  #visit-sheet tr {break-inside:avoid}
+}

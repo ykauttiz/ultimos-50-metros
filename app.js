@@ -46,12 +46,38 @@ function updateComparison(records) {
   compareVisits();
 }
 el("compare-point").onchange = compareVisits;
-function draw(data){
-  const findings=Field.findings(data),q=el("search").value.toLocaleLowerCase("pt-BR");
-  display=data;
+let fieldIndex = {findings:[],history:[],queue:[]}, priority = "";
+const priorityButtons = ["Revisar barreira","Completar vistoria","Vistoria completa"].map(label => {
+  const button = node("button");
+  button.dataset.priority = label;
+  button.onclick = () => {
+    priority = priority === label ? "" : label;
+    limit = 50;
+    drawSelection();
+  };
+  el("priorities").append(button);
+  return button;
+});
+function draw(data) {
+  display = data;
+  fieldIndex = {findings:Field.findings(data),history:history(data.records),queue:queue(data.records)};
   updateComparison(data.records);
-  const records=(el("mode").value==="history"?history(data.records):queue(data.records)).filter(r=>r.point.toLocaleLowerCase("pt-BR").includes(q));
+  drawSelection();
+}
+function drawSelection() {
+  const data = display, findings = fieldIndex.findings, q = pointKey(el("search").value);
+  const searched = fieldIndex[el("mode").value].filter(r => pointKey(r.point).includes(q));
+  const counts = new Map();
+  for (const item of searched) counts.set(item.status,(counts.get(item.status) || 0)+1);
+  for (const button of priorityButtons) {
+    const label = button.dataset.priority;
+    button.textContent = label + " · " + (counts.get(label) || 0);
+    button.setAttribute("aria-pressed",String(priority === label));
+  }
+  const records = priority ? searched.filter(r => r.status === priority) : searched;
+  el("priority-summary").textContent = records.length + " vistoria(s) na seleção." + (priority ? " Selecione a prioridade novamente para ver todas." : "");
   selectedVisits=records;
+  el("print-visits").disabled = !records.length;
   el("geo").disabled=!records.some(r=>r.coordinates);
   el("rows").replaceChildren(...records.slice(0,limit).map(r=>{const tr=node("tr");for(const value of [r.point,r.date,r.status,...parts.map(p=>r[p]),r.note])tr.append(node("td",value));return tr;}));
   el("more").hidden=records.length<=limit;
@@ -100,12 +126,30 @@ el("visit").onsubmit=e=>{e.preventDefault();try{
   if(data.records.length && Field.identity(data.records.at(-1))===Field.identity(r) && !data.actions.some(a=>a.point===r.point && a.date===r.date))return message("Esta vistoria já consta no histórico.");
   data.records.push(r);write(data);message(demo?"Vistoria adicionada ao exemplo.":"Vistoria salva neste navegador.");
 }catch(err){message(err.message);}};
-for(const id of ["mode","search","state"])el(id).oninput=()=>{limit=50;draw(display);};
-for(const id of ["more","moreCases"])el(id).onclick=()=>{limit+=50;draw(display);};
+for(const id of ["mode","search","state"])el(id).oninput=()=>{limit=50;drawSelection();};
+for(const id of ["more","moreCases"])el(id).onclick=()=>{limit+=50;drawSelection();};
 el("demo").onclick=()=>{try{
   const next=demo?read():{schemaVersion:2,records:[{point:"Praça das Flores · sentido centro",date:"2026-10-20",calçada:states[2],travessia:states[0],embarque:states[1],note:"Piso interrompido na esquina."}],actions:[]};
   demo=!demo;if(demo)sample=next;pending=null;ticket++;el("confirm").hidden=true;draw(next);message(demo?"Você está praticando com dados fictícios.":"Seu histórico foi carregado.");
 }catch(err){message(err.message);}};
+function prepareSheet() {
+  const sheet = el("visit-sheet");
+  const origin = demo ? "Exemplo fictício" : "Histórico deste navegador";
+  sheet.replaceChildren(node("h1","Últimos 50 Metros"),node("p",origin + " · " + selectedVisits.length + " vistoria(s) selecionada(s)"));
+  const table = node("table"), head = table.createTHead().insertRow();
+  for (const label of ["Ponto","Data","Prioridade","Calçada","Travessia","Embarque"]) {
+    const th = node("th",label);th.scope = "col";head.append(th);
+  }
+  const body = table.createTBody();
+  for (const visit of selectedVisits) {
+    const row = body.insertRow();
+    for (const value of [visit.point,visit.date,visit.status,...parts.map(part => visit[part])]) row.append(node("td",value));
+  }
+  sheet.append(table);
+}
+window.addEventListener("beforeprint",prepareSheet);
+window.addEventListener("afterprint",() => el("visit-sheet").replaceChildren());
+el("print-visits").onclick = () => window.print();
 el("geo").onclick=()=>{
   const collection=Field.geojson(selectedVisits);
   const link=node("a");
