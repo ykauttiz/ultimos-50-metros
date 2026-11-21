@@ -77,6 +77,7 @@ function drawSelection() {
   const records = priority ? searched.filter(r => r.status === priority) : searched;
   el("priority-summary").textContent = records.length + " vistoria(s) na seleção." + (priority ? " Selecione a prioridade novamente para ver todas." : "");
   selectedVisits=records;
+  el("csv-visits").disabled = !records.length;
   el("print-visits").disabled = !records.length;
   el("geo").disabled=!records.some(r=>r.coordinates);
   el("rows").replaceChildren(...records.slice(0,limit).map(r=>{const tr=node("tr");for(const value of [r.point,r.date,r.status,...parts.map(p=>r[p]),r.note])tr.append(node("td",value));return tr;}));
@@ -149,6 +150,20 @@ el("demo").onclick=()=>{try{
   const next=demo?read():{schemaVersion:2,records:[{point:"Praça das Flores · sentido centro",date:"2026-10-20",calçada:states[2],travessia:states[0],embarque:states[1],note:"Piso interrompido na esquina."}],actions:[]};
   demo=!demo;if(demo)sample=next;pending=null;ticket++;el("confirm").hidden=true;draw(next);message(demo?"Você está praticando com dados fictícios.":"Seu histórico foi carregado.");
 }catch(err){message(err.message);}};
+el("csv-visits").onclick = () => {
+  const fields = ["Ponto","Data","Prioridade","Calçada","Travessia","Embarque"];
+  const escapeCell = value => {
+    let text = String(value);
+    if (/^\s*[=+@-]/.test(text)) text = "'" + text;
+    return '"' + text.replaceAll('"','""') + '"';
+  };
+  const rows = [fields,...selectedVisits.map(v => [v.point,v.date,v.status,...parts.map(p => v[p])])];
+  const csv = rows.map(row => row.map(escapeCell).join(";")).join("\r\n");
+  const link = node("a");
+  link.href = URL.createObjectURL(new Blob(["\uFEFF",csv],{type:"text/csv;charset=utf-8"}));
+  link.download = demo ? "exemplo-vistorias.csv" : "vistorias.csv";
+  link.click();setTimeout(() => URL.revokeObjectURL(link.href),1000);
+};
 function prepareSheet() {
   const sheet = el("visit-sheet");
   const origin = demo ? "Exemplo fictício" : "Histórico deste navegador";

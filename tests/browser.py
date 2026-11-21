@@ -48,6 +48,13 @@ with sync_playwright() as p, TemporaryDirectory() as tmp:
         expect(page.locator("#visit-sheet tbody tr")).to_have_count(1)
         assert "Texto reservado" not in page.locator("#visit-sheet").text_content()
         page.evaluate("window.dispatchEvent(new Event('afterprint'))")
+        with page.expect_download() as sheet:
+            page.locator("#csv-visits").click()
+        csv = Path(sheet.value.path()).read_text(encoding="utf-8-sig")
+        assert "Ponto fictício" in csv and "Texto reservado" not in csv
+        manifest = page.request.get(f"http://127.0.0.1:{server.server_port}/manifest.webmanifest").json()
+        for icon in manifest["icons"]:
+            assert page.request.get(f"http://127.0.0.1:{server.server_port}/" + icon["src"]).ok
         with page.expect_download() as geo:
             page.locator("#geo").click()
         import json

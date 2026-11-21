@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 root = Path(__file__).resolve().parent
-assets = ["index.html", "style.css", "app.js", "core.js", "field.js"]
+assets = ["index.html", "style.css", "app.js", "core.js", "field.js", "manifest.webmanifest", "icon-192.png", "icon-512.png"]
 sha = hashlib.sha256()
 for asset in assets:
     sha.update((root / asset).read_bytes())
