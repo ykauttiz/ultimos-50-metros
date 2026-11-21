@@ -2,9 +2,11 @@
 
 [Experimentar no navegador](https://ykauttiz.github.io/ultimos-50-metros/)
 
+![Caderno de campo com os controles de vistoria e histórico.](assets/demonstracao.webp)
+
 Uma vistoria pode encontrar uma barreira na calçada antes mesmo de chegar ao ponto. Este caderno registra separadamente calçada, travessia e embarque. O botão **Ver exemplo fictício** mostra uma esquina com a calçada interrompida.
 
-Baixe o projeto e abra **index.html**. Informe um identificador estável para o ponto (inclua o sentido), a data e o que observou. Use **Sem vistoria** se um trecho ficou por verificar. A fila destaca barreiras e usa a observação mais recente de cada ponto. Em empate de data, vale a última salva.
+Baixe o projeto e abra **index.html**. Informe um identificador estável para o ponto (inclua o sentido), a data e o que observou. Use **Sem vistoria** se um trecho ficou por verificar. A fila destaca barreiras e usa a observação mais recente de cada ponto. No mesmo dia, o horário registrado determina a ordem. Se os horários também empatarem, a fila prioriza a última entrada na lista.
 
 Os registros são locais a este navegador e endereço. Exporte o histórico em JSON antes de limpar seus dados. A fila serve para planejar novas vistorias; uma observação pontual não certifica a acessibilidade de uma rota.
 
