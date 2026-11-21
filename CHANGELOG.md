@@ -2,6 +2,8 @@
 
 ## 2026-11-21
 
+- Caderno de campo com navegação por seção e áreas distintas para registrar e acompanhar vistorias.
+
 Preparação offline para reabrir o caderno em campo, com teste de recarga sem rede.
 
 Na vistoria, abra **Localização opcional do ponto** e informe latitude e longitude. O botão **Exportar vistorias da seleção em GeoJSON** inclui as vistorias com coordenadas da fila ou histórico filtrado por ponto. O arquivo traz ponto, data e condições dos três trechos. Observações livres e ações permanecem no backup completo.
