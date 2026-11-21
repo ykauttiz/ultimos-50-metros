@@ -1,6 +1,8 @@
 # Últimos 50 Metros
 
-[Experimentar no navegador](https://ykauttiz.github.io/ultimos-50-metros/)
+**Experimente em um minuto.** Abra o exemplo fictício, localize a barreira de calçada em **Ocorrências**, registre uma correção e confira o que muda na fila.
+
+[Abrir demonstração](https://ykauttiz.github.io/ultimos-50-metros/) · [Portfólio do Kauê](https://ykauttiz.github.io/contratempo/portfolio/)
 
 ![Caderno de campo com os controles de vistoria e histórico.](assets/demonstracao.webp)
 
