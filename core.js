@@ -17,18 +17,24 @@ function inspect(record) {
   return parts.some(p => record[p] === states[2]) ? "Revisar barreira" :
     parts.some(p => record[p] === states[0]) ? "Completar vistoria" : "Vistoria completa";
 }
+function compareVisitTime(a,b) {
+  return a.date.localeCompare(b.date) || (a.recordedAt || "").localeCompare(b.recordedAt || "");
+}
+function pointKey(name) {
+  return name.trim().normalize("NFC").toLocaleLowerCase("pt-BR");
+}
 function queue(records) {
   const latest = new Map();
   for (const r of records) {
-    const status = inspect(r), id = r.point.trim().toLocaleLowerCase("pt-BR");
-    if (!latest.has(id) || latest.get(id).date <= r.date) latest.set(id, {...r, status});
+    const status = inspect(r), id = pointKey(r.point);
+    if (!latest.has(id) || compareVisitTime(latest.get(id),r) <= 0) latest.set(id, {...r, status});
   }
   const priority = ["Revisar barreira","Completar vistoria","Vistoria completa"];
   return [...latest.values()].sort((a,b) => priority.indexOf(a.status)-priority.indexOf(b.status) || a.date.localeCompare(b.date));
 }
 function mergeHistory(current, incoming) {
   if (!Array.isArray(incoming)) throw Error("O backup precisa conter uma lista de vistorias.");
-  const signature = r => JSON.stringify([r.point.trim().toLocaleLowerCase("pt-BR"), r.date,
+  const signature = r => JSON.stringify([pointKey(r.point), r.date,
     ...parts.map(part => r[part]), r.note, r.recordedAt || "", r.coordinates || null,r.photo || null]);
   const seen = new Set(current.map(signature));
   const additions = [];
@@ -45,6 +51,6 @@ function mergeHistory(current, incoming) {
 }
 function history(records) {
   return records.slice().reverse().map(record => ({...record, status: inspect(record)}))
-    .sort((a,b) => b.date.localeCompare(a.date));
+    .sort((a,b) => compareVisitTime(b,a));
 }
 if (typeof module !== "undefined") module.exports = {queue, inspect, mergeHistory, history};

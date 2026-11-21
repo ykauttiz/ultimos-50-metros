@@ -42,7 +42,6 @@ function write(data){
   if(demo)sample=data;else localStorage.setItem(key,JSON.stringify(data));
   draw(data);
 }
-const pointKey = name => name.trim().toLocaleLowerCase("pt-BR");
 function compareVisits() {
   const target = el("visit-comparison"), key = el("compare-point").value;
   target.replaceChildren();

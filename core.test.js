@@ -24,3 +24,12 @@ test("histórico mantém as visitas anteriores e a ordem em datas iguais",()=>{
   assert.deepEqual(history(records).map(r=>r.note),["terceira","segunda",entry.note]);
   assert.equal(records[0],entry);
 });
+
+test("uma vistoria importada mais recente prevalece no mesmo dia", () => {
+  const {mergeHistory,history} = require("./core");
+  const early = {...entry,point:"Praça",recordedAt:"2026-11-01T08:00:00.000Z"};
+  const late = {...early,point:"Praça".normalize("NFD"),recordedAt:"2026-11-01T12:00:00.000Z",note:"Após a obra"};
+  const merged = mergeHistory([early],[late]);
+  assert.deepEqual(queue(merged).map(r => r.note),["Após a obra"]);
+  assert.equal(history(merged)[0].recordedAt,late.recordedAt);
+});
