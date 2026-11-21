@@ -31,7 +31,8 @@ with sync_playwright() as p, TemporaryDirectory() as tmp:
         }})""")
         page.locator("#gps").click()
         expect(page.locator("#gps-status")).to_contain_text("9 m")
-        expect(page.locator("#lat")).to_have_value("1.250000")
+        assert float(page.locator("#lat").input_value()) == 1.25
+        assert float(page.locator("#lon").input_value()) == 2.5
         page.locator("#point").fill("Ponto fictício")
         page.locator("#lat").fill("-16.32")
         page.locator("#lon").fill("-48.95")
