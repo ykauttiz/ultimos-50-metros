@@ -1,5 +1,9 @@
 # Changelog
 
+## 21 de novembro de 2026 · Aparência configurável
+
+- Seletor de tema automático, claro e escuro com preferência local e testes de recarga em navegador.
+
 ## 2026-11-21
 
 Navegação visual revista, foco de teclado explícito, link para o portfólio e roteiro curto no README.
