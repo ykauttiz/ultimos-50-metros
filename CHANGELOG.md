@@ -2,6 +2,8 @@
 
 ## 2026-11-21
 
+Em **Vistorias**, selecione um ponto para comparar as duas observações mais recentes. O caderno mostra as datas e o que mudou em calçada, travessia e embarque, inclusive quando uma observação continua igual.
+
 - Caderno de campo com navegação por seção e áreas distintas para registrar e acompanhar vistorias.
 
 Preparação offline para reabrir o caderno em campo, com teste de recarga sem rede.

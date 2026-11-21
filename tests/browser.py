@@ -37,6 +37,13 @@ with sync_playwright() as p, TemporaryDirectory() as tmp:
         feature=json.loads(geo.value.path().read_text())["features"][0]
         assert feature["geometry"]["coordinates"] == [-48.95,-16.32]
         assert "Texto reservado" not in str(feature)
+        page.get_by_text("Comparar as duas últimas vistorias de um ponto",exact=True).click()
+        page.locator("#compare-point").select_option("ponto fictício")
+        expect(page.locator("#visit-comparison")).to_contain_text("tem uma vistoria")
+        page.locator("#parts select").first.select_option("Livre na vistoria")
+        page.get_by_text("Salvar vistoria",exact=True).click()
+        expect(page.locator("#visit-comparison")).to_contain_text("Sem vistoria → Livre na vistoria")
+        expect(page.locator("#visit-comparison")).to_contain_text("sem mudança")
         page.locator("#demo").click()
         page.locator("#cases summary").click()
         page.locator("#cases textarea").fill("Trecho corrigido")

@@ -14,9 +14,42 @@ function write(data){
   if(demo)sample=data;else localStorage.setItem(key,JSON.stringify(data));
   draw(data);
 }
+const pointKey = name => name.trim().toLocaleLowerCase("pt-BR");
+function compareVisits() {
+  const target = el("visit-comparison"), key = el("compare-point").value;
+  target.replaceChildren();
+  if (!key) {
+    target.append(node("p","Selecione um ponto com vistorias registradas."));
+    return;
+  }
+  const visits = history(display.records.filter(record => pointKey(record.point) === key));
+  if (visits.length < 2) {
+    target.append(node("p","Este ponto tem uma vistoria. A comparação fica disponível a partir da segunda."));
+    return;
+  }
+  const [latest, previous] = visits;
+  target.append(node("p","Anterior: " + previous.date + " · Mais recente: " + latest.date));
+  const changes = node("ul");
+  for (const part of parts) {
+    const before = previous[part], after = latest[part];
+    changes.append(node("li",part + ": " + (before === after ? after + " (sem mudança)" : before + " → " + after)));
+  }
+  target.append(changes);
+}
+function updateComparison(records) {
+  const select = el("compare-point"), previous = select.value;
+  const points = new Map(records.map(record => [pointKey(record.point), record.point]));
+  select.replaceChildren(new Option("Escolha um ponto",""));
+  for (const [key,name] of [...points].sort((a,b) => a[1].localeCompare(b[1],"pt-BR"))) select.add(new Option(name,key));
+  if (points.has(previous)) select.value = previous;
+  select.disabled = !points.size;
+  compareVisits();
+}
+el("compare-point").onchange = compareVisits;
 function draw(data){
   const findings=Field.findings(data),q=el("search").value.toLocaleLowerCase("pt-BR");
   display=data;
+  updateComparison(data.records);
   const records=(el("mode").value==="history"?history(data.records):queue(data.records)).filter(r=>r.point.toLocaleLowerCase("pt-BR").includes(q));
   selectedVisits=records;
   el("geo").disabled=!records.some(r=>r.coordinates);

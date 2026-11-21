@@ -27,3 +27,5 @@ O backup versão 2 contém vistorias e ações. A importação também reconhece
 Na vistoria, abra **Localização opcional do ponto** e informe latitude e longitude. O botão **Exportar vistorias da seleção em GeoJSON** inclui as vistorias com coordenadas da fila ou histórico filtrado por ponto. O arquivo traz ponto, data e condições dos três trechos. Observações livres e ações permanecem no backup completo.
 
 Antes de sair para a vistoria, clique em **Preparar uso sem internet** com conexão e aguarde a confirmação. A página e os arquivos do aplicativo ficam disponíveis nesse navegador. Limpar os dados do site remove o histórico e o cache. Use o backup JSON para guardar uma cópia das vistorias. Após editar a interface, rode `python prepare_offline.py`.
+
+Em **Vistorias**, selecione um ponto para comparar as duas observações mais recentes. O caderno mostra as datas e o que mudou em calçada, travessia e embarque, inclusive quando uma observação continua igual.
