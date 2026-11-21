@@ -41,6 +41,8 @@ No ponto de ônibus, abra a localização opcional e selecione **Usar posição 
 
 A seleção de vistorias pode ser baixada em CSV, sem observações livres ou coordenadas. Para instalar em um navegador compatível, prepare o uso sem internet e use a opção de instalação do navegador.
 
+O CSV neutraliza prefixos de fórmula ASCII, caracteres de controle e variantes Unicode conhecidas antes de abrir o arquivo em uma planilha.
+
 Mapa de coordenadas offline com destaque por ponto, seleção por teclado e descrição textual. Ele usa as coordenadas das vistorias selecionadas e funciona sem mapas externos ou imagens de ruas.
 
 Cada vistoria aceita uma foto opcional. Ao selecionar um arquivo, o caderno cria um JPEG de até 640 pixels a partir dos pixels da imagem. O backup JSON inclui a cópia. CSV, ficha impressa e GeoJSON omitem a foto.

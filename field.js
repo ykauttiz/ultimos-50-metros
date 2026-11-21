@@ -67,6 +67,11 @@ const Field = (() => {
     }
     return {type:"FeatureCollection",features};
   }
-  return {validate,findings,merge,identity,geojson};
+  function csvCell(value) {
+    let text = String(value);
+    if (/^[\t\r\n\0]|^\s*[=+@\uFF1D\uFF0B\uFF0D\uFF20-]/u.test(text)) text = "'" + text;
+    return '"' + text.replaceAll('"','""') + '"';
+  }
+  return {validate,findings,merge,identity,geojson,csvCell};
 })();
 if(typeof module!=="undefined")module.exports=Field;

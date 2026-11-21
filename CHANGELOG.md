@@ -2,6 +2,8 @@
 
 ## 2026-11-21
 
+O CSV de vistorias neutraliza também prefixos de controle e variantes Unicode que podem iniciar fórmulas em planilhas.
+
 Os testes de interface também exercitam telas de 320 pixels.
 
 A fila e o histórico usam o horário do registro para ordenar vistorias do mesmo dia após restaurar um backup. Grafias Unicode equivalentes identificam o mesmo ponto.

@@ -16,3 +16,9 @@ test("observação posterior reabre e backup repetido é idempotente",()=>{
  assert.deepEqual(F.merge(updated,updated),updated);
  assert.throws(()=>F.merge(updated,{...data,actions:[{...a,note:"outro"}]}));
 });
+test("CSV neutraliza fórmulas ASCII, controles e variantes Unicode",()=>{
+ assert.equal(F.csvCell("=1+1"),'"\'=1+1"');
+ assert.equal(F.csvCell("\tSOMA(A1:A2)"),'"\'\tSOMA(A1:A2)"');
+ assert.equal(F.csvCell("＋1"),'"\'＋1"');
+ assert.equal(F.csvCell('Ponto "A"'),'"Ponto ""A"""');
+});
