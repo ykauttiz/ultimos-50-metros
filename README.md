@@ -32,3 +32,7 @@ Em **Vistorias**, selecione um ponto para comparar as duas observações mais re
 
 Na área **Vistorias**, selecione a prioridade para ver barreiras, vistorias incompletas ou completas. Os contadores acompanham o ponto pesquisado e a exibição por fila ou histórico. O GeoJSON respeita essa seleção. O histórico e a fila são preparados quando os registros mudam e reutilizados durante a busca.
 **Imprimir seleção** gera uma ficha com ponto, data, prioridade e condição dos três trechos. A ficha omite as coordenadas e as observações livres.
+
+No ponto de ônibus, abra a localização opcional e selecione **Usar posição do aparelho**. Revise latitude, longitude e precisão antes de salvar. A entrada manual também funciona quando a permissão é negada.
+
+[Ver testes e capturas de celular e computador](https://github.com/ykauttiz/ultimos-50-metros/actions/workflows/verificar.yml). Na execução, abra o artefato **capturas-chromium** ou **capturas-firefox**. As imagens usam dados fictícios.

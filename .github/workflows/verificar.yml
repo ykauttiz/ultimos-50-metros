@@ -31,3 +31,9 @@ jobs:
       - run: python tests/browser.py
         env:
           ENGINE: ${{ matrix.engine }}
+          CAPTURAR_DEMO: "1"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: capturas-${{ matrix.engine }}
+          path: capturas/*.png
+          if-no-files-found: error

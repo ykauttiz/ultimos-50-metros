@@ -114,6 +114,23 @@ for(const p of parts){
   const label=node("label",p),select=node("select");select.name=p;
   for(const state of states)select.add(new Option(state,state));label.append(select);el("parts").append(label);
 }
+el("gps").onclick = () => {
+  const status = el("gps-status");
+  if (!navigator.geolocation) {status.textContent="Localização indisponível. Informe as coordenadas manualmente.";return;}
+  const fields = ["lat","lon","point"], initial = fields.map(id => el(id).value);
+  el("gps").disabled = true;status.textContent = "Aguardando a posição do aparelho…";
+  navigator.geolocation.getCurrentPosition(position => {
+    el("gps").disabled = false;
+    if (fields.some((id,i) => initial[i] !== el(id).value)) {
+      status.textContent = "O formulário mudou. Confira as coordenadas ou solicite a posição novamente.";return;
+    }
+    el("lat").value = position.coords.latitude.toFixed(6);
+    el("lon").value = position.coords.longitude.toFixed(6);
+    status.textContent = "Posição preenchida. Precisão informada: " + Math.round(position.coords.accuracy) + " m. Confira antes de salvar.";
+  },() => {
+    el("gps").disabled = false;status.textContent="Posição indisponível. Você pode digitar latitude e longitude.";
+  },{enableHighAccuracy:true,timeout:12000,maximumAge:0});
+};
 el("date").value=today();
 el("visit").onsubmit=e=>{e.preventDefault();try{
   const r={recordedAt:new Date().toISOString(),point:el("point").value.trim(),date:el("date").value,note:el("note").value.trim()};

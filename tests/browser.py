@@ -26,6 +26,12 @@ with sync_playwright() as p, TemporaryDirectory() as tmp:
         assert page.evaluate("location.hash === document.querySelector('.skip').hash")
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
         page.get_by_text("Localização opcional do ponto",exact=True).click()
+        page.evaluate("""Object.defineProperty(navigator,'geolocation',{configurable:true,value:{
+          getCurrentPosition: success => success({coords:{latitude:1.25,longitude:2.5,accuracy:9}})
+        }})""")
+        page.locator("#gps").click()
+        expect(page.locator("#gps-status")).to_contain_text("9 m")
+        expect(page.locator("#lat")).to_have_value("1.250000")
         page.locator("#point").fill("Ponto fictício")
         page.locator("#lat").fill("-16.32")
         page.locator("#lon").fill("-48.95")
@@ -56,6 +62,11 @@ with sync_playwright() as p, TemporaryDirectory() as tmp:
         expect(page.locator("#visit-comparison")).to_contain_text("sem mudança")
         page.locator("#demo").click()
         page.locator("#cases summary").click()
+        if os.environ.get("CAPTURAR_DEMO") == "1":
+            captures = root / "capturas"
+            captures.mkdir(exist_ok=True)
+            page.screenshot(path=captures / f"demo-{width}.png", animations="disabled")
+
         page.locator("#cases textarea").fill("Trecho corrigido")
         page.get_by_text("Registrar etapa",exact=True).click()
         expect(page.locator("#cases summary")).to_contain_text("A verificar")
