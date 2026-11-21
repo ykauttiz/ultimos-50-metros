@@ -39,7 +39,7 @@ jobs:
           if-no-files-found: error
 
   release:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'release(v2026.11.21)')
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'release(v')
     needs: [motor, interface]
     runs-on: ubuntu-latest
     permissions:
@@ -50,7 +50,18 @@ jobs:
           persist-credentials: false
       - name: Publicar marco testado
         env:
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create v2026.11.21 --target "$GITHUB_SHA" --title "Atualização de 21 de novembro" --notes-file RELEASE.md
+          set -euo pipefail
+          subject=${COMMIT_MESSAGE%%$'\n'*}
+          pattern='^release\((v[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?)\) (.+)$'
+          if ! [[ $subject =~ $pattern ]]; then
+            echo "Use release(vAAAA.MM.DD) seguido do título." >&2
+            exit 1
+          fi
+          tag=${BASH_REMATCH[1]}
+          title=${BASH_REMATCH[3]}
+          test -s RELEASE.md
+          gh release create "$tag" --target "$GITHUB_SHA" --title "$title" --notes-file RELEASE.md
 
