@@ -7,6 +7,9 @@ function inspect(record) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(record.date) ||
       !Number.isFinite(Date.parse(record.date)) ||
       new Date(record.date).toISOString().slice(0,10) !== record.date) throw Error("Data inválida.");
+  const xy = record.coordinates;
+  if (xy !== undefined && (!Array.isArray(xy) || xy.length !== 2 || !xy.every(Number.isFinite) ||
+      Math.abs(xy[0]) > 180 || Math.abs(xy[1]) > 90)) throw Error("Coordenadas inválidas.");
   if (!parts.every(part => states.includes(record[part]))) throw Error("Verifique os três trechos.");
   if (typeof record.note !== "string" || record.note.length > 600) throw Error("Observação inválida.");
   return parts.some(p => record[p] === states[2]) ? "Revisar barreira" :
@@ -24,7 +27,7 @@ function queue(records) {
 function mergeHistory(current, incoming) {
   if (!Array.isArray(incoming)) throw Error("O backup precisa conter uma lista de vistorias.");
   const signature = r => JSON.stringify([r.point.trim().toLocaleLowerCase("pt-BR"), r.date,
-    ...parts.map(part => r[part]), r.note, r.recordedAt || ""]);
+    ...parts.map(part => r[part]), r.note, r.recordedAt || "", r.coordinates || null]);
   const seen = new Set(current.map(signature));
   const additions = [];
   for (const record of incoming) {

@@ -6,6 +6,7 @@ const key="ultimos-50-metros.v2",legacy="ultimos-50-metros.v1";
 const today=()=>new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);
 const empty=()=>({schemaVersion:2,records:[],actions:[]});
 function read(){return Field.validate(JSON.parse(localStorage.getItem(key)??localStorage.getItem(legacy)??"[]"));}
+let selectedVisits=[];
 let demo=false,sample=empty(),pending=null,ticket=0,display=empty(),limit=50;
 function current(){return demo?sample:read();}
 function write(data){
@@ -17,6 +18,8 @@ function draw(data){
   const findings=Field.findings(data),q=el("search").value.toLocaleLowerCase("pt-BR");
   display=data;
   const records=(el("mode").value==="history"?history(data.records):queue(data.records)).filter(r=>r.point.toLocaleLowerCase("pt-BR").includes(q));
+  selectedVisits=records;
+  el("geo").disabled=!records.some(r=>r.coordinates);
   el("rows").replaceChildren(...records.slice(0,limit).map(r=>{const tr=node("tr");for(const value of [r.point,r.date,r.status,...parts.map(p=>r[p]),r.note])tr.append(node("td",value));return tr;}));
   el("more").hidden=records.length<=limit;
   el("summary").textContent=data.records.length+" vistoria(s) · "+findings.filter(i=>i.state!=="Verificada").length+" ocorrência(s) em acompanhamento";
@@ -56,6 +59,10 @@ el("date").value=today();
 el("visit").onsubmit=e=>{e.preventDefault();try{
   const r={recordedAt:new Date().toISOString(),point:el("point").value.trim(),date:el("date").value,note:el("note").value.trim()};
   for(const p of parts)r[p]=e.target.elements[p].value;
+  if(el("lat").value || el("lon").value){
+    if(!el("lat").value || !el("lon").value)throw Error("Informe latitude e longitude juntas.");
+    r.coordinates=[el("lon").valueAsNumber,el("lat").valueAsNumber];
+  }
   inspect(r);const data=current();
   if(data.records.length && Field.identity(data.records.at(-1))===Field.identity(r) && !data.actions.some(a=>a.point===r.point && a.date===r.date))return message("Esta vistoria já consta no histórico.");
   data.records.push(r);write(data);message(demo?"Vistoria adicionada ao exemplo.":"Vistoria salva neste navegador.");
@@ -66,6 +73,14 @@ el("demo").onclick=()=>{try{
   const next=demo?read():{schemaVersion:2,records:[{point:"Praça das Flores · sentido centro",date:"2026-10-20",calçada:states[2],travessia:states[0],embarque:states[1],note:"Piso interrompido na esquina."}],actions:[]};
   demo=!demo;if(demo)sample=next;pending=null;ticket++;el("confirm").hidden=true;draw(next);message(demo?"Você está praticando com dados fictícios.":"Seu histórico foi carregado.");
 }catch(err){message(err.message);}};
+el("geo").onclick=()=>{
+  const collection=Field.geojson(selectedVisits);
+  const link=node("a");
+  link.href=URL.createObjectURL(new Blob([JSON.stringify(collection)],{type:"application/geo+json"}));
+  link.download=demo?"exemplo.geojson":"vistorias.geojson";link.click();
+  setTimeout(()=>URL.revokeObjectURL(link.href),1000);
+  message(collection.features.length+" vistoria(s) com coordenadas exportada(s).");
+};
 el("export").onclick=()=>{try{const link=node("a");link.href=URL.createObjectURL(new Blob([JSON.stringify(current(),null,2)],{type:"application/json"}));link.download=demo?"exemplo-vistorias.json":"vistorias.json";link.click();setTimeout(()=>URL.revokeObjectURL(link.href),1000);}catch(err){message(err.message);}};
 el("restore").onchange=async e=>{
   const file=e.target.files[0],id=++ticket;pending=null;el("confirm").hidden=true;if(!file)return;
@@ -79,3 +94,28 @@ el("restore").onchange=async e=>{
 el("confirm").onclick=()=>{if(!pending)return;try{write(Field.merge(current(),pending));pending=null;el("confirm").hidden=true;message("Backup incorporado.");}catch(err){message(err.message);}};
 window.addEventListener("storage",()=>{if(!demo)try{draw(read());}catch(err){message(err.message);}});
 try{draw(read());}catch(err){message(err.message);}
+
+if ("serviceWorker" in navigator && location.protocol !== "file:") {
+  el("offline").hidden=false;
+  el("offline").onclick=async ()=>{
+    el("offline").disabled=true;
+    el("offline-status").textContent="Guardando o aplicativo neste navegador…";
+    try {
+      const registration=await navigator.serviceWorker.register("./sw.js");
+      const worker=registration.installing;
+      if (worker && worker.state !== "activated" && !registration.active) {
+        await new Promise((resolve,reject)=>{
+          const check=()=>{
+            if(worker.state==="activated"){worker.removeEventListener("statechange",check);resolve();}
+            if(worker.state==="redundant"){worker.removeEventListener("statechange",check);reject(Error());}
+          };
+          worker.addEventListener("statechange",check);check();
+        });
+      }
+      await navigator.serviceWorker.ready;
+      el("offline-status").textContent="Pronto. Você pode reabrir esta página sem internet neste navegador.";
+    } catch {
+      el("offline-status").textContent="Não foi possível guardar o aplicativo. Tente novamente com conexão.";
+    } finally {el("offline").disabled=false;}
+  };
+}

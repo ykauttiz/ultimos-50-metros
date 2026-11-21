@@ -20,6 +20,18 @@ with sync_playwright() as p, TemporaryDirectory() as tmp:
         errors = []
         page.on("pageerror", lambda error: errors.append(str(error)))
         page.goto(f"http://127.0.0.1:{server.server_port}/")
+        page.get_by_text("Localização opcional do ponto",exact=True).click()
+        page.locator("#point").fill("Ponto fictício")
+        page.locator("#lat").fill("-16.32")
+        page.locator("#lon").fill("-48.95")
+        page.locator("#note").fill("Texto reservado ao histórico")
+        page.get_by_text("Salvar vistoria",exact=True).click()
+        with page.expect_download() as geo:
+            page.locator("#geo").click()
+        import json
+        feature=json.loads(geo.value.path().read_text())["features"][0]
+        assert feature["geometry"]["coordinates"] == [-48.95,-16.32]
+        assert "Texto reservado" not in str(feature)
         page.locator("#demo").click()
         page.locator("#cases summary").click()
         page.locator("#cases textarea").fill("Trecho corrigido")
@@ -42,6 +54,13 @@ with sync_playwright() as p, TemporaryDirectory() as tmp:
         page.locator("#restore").set_input_files(file)
         expect(page.locator("#message")).to_contain_text("0 nova(s) vistoria(s)")
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+        page.locator("#offline").click()
+        expect(page.locator("#offline-status")).to_contain_text("Pronto.")
+        page.wait_for_function("navigator.serviceWorker.controller !== null")
+        page.context.set_offline(True)
+        page.reload()
+        expect(page.locator("#cases summary")).to_contain_text("Verificada")
+        page.context.set_offline(False)
         assert not errors, errors
         page.close()
     browser.close()

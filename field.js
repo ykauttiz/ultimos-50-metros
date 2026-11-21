@@ -3,7 +3,7 @@ const Field = (() => {
   const model = typeof require === "function" ? require("./core") : {inspect,mergeHistory};
   const segments=["calçada","travessia","embarque"];
   const norm=s=>s.trim().normalize("NFC").toLocaleLowerCase("pt-BR");
-  const identity=r=>JSON.stringify([norm(r.point),r.date,...segments.map(p=>r[p]),r.note]);
+  const identity=r=>JSON.stringify([norm(r.point),r.date,...segments.map(p=>r[p]),r.note,r.coordinates || null]);
   const key=(point,part)=>JSON.stringify([norm(point),part]);
   function validate(data) {
     if(Array.isArray(data))data={schemaVersion:2,records:data,actions:[]};
@@ -56,6 +56,17 @@ const Field = (() => {
     const result={schemaVersion:2,records,actions:[...byId.values()]};
     findings(result);return result;
   }
-  return {validate,findings,merge,identity};
+  function geojson(records) {
+    const features = [];
+    for (const visit of records) {
+      model.inspect(visit);
+      if (!visit.coordinates) continue;
+      const properties = {ponto:visit.point, data:visit.date};
+      for (const segment of segments) properties[segment] = visit[segment];
+      features.push({type:"Feature",geometry:{type:"Point",coordinates:visit.coordinates},properties});
+    }
+    return {type:"FeatureCollection",features};
+  }
+  return {validate,findings,merge,identity,geojson};
 })();
 if(typeof module!=="undefined")module.exports=Field;
