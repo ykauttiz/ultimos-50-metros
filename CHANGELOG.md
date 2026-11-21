@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-11-21
+
+Ocorrências por trecho com correção e verificação em campo, pesquisa, exemplo isolado e restauração com prévia. Backups antigos de vistorias continuam aceitos.
+
 ## 2026-11-20 · Histórico de campo
 
 Use a seleção de exibição para alternar entre a fila atual e todas as visitas por data. A tabela identifica o estado de cada trecho separadamente, inclusive quando ainda falta vistoriá-lo.

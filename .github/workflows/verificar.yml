@@ -1,0 +1,32 @@
+name: Verificar projeto
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  motor:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        node: ['22', '24']
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: node --test
+  interface:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        engine: [chromium, firefox]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - run: python -m pip install playwright==1.55.0
+      - if: matrix.engine == 'firefox'
+        run: python -m playwright install firefox
+      - run: python tests/browser.py
+        env:
+          ENGINE: ${{ matrix.engine }}

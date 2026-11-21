@@ -24,7 +24,7 @@ function queue(records) {
 function mergeHistory(current, incoming) {
   if (!Array.isArray(incoming)) throw Error("O backup precisa conter uma lista de vistorias.");
   const signature = r => JSON.stringify([r.point.trim().toLocaleLowerCase("pt-BR"), r.date,
-    ...parts.map(part => r[part]), r.note]);
+    ...parts.map(part => r[part]), r.note, r.recordedAt || ""]);
   const seen = new Set(current.map(signature));
   const additions = [];
   for (const record of incoming) {
