@@ -1,6 +1,6 @@
 "use strict";
 const prefix = "ultimos-50-metros-shell-";
-const cacheName = prefix + "3de830c0b41c0860";
+const cacheName = prefix + "0159f453f3b43230";
 const assets = ["index.html", "style.css", "app.js", "core.js", "field.js"].map(file => new URL(file, self.registration.scope).href);
 self.addEventListener("install", event => {
   event.waitUntil((async () => {

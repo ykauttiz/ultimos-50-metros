@@ -15,7 +15,7 @@ header b { font:700 1.25rem Georgia,serif }
 .route-nav { display:flex; gap:.5rem 1.6rem; flex-wrap:wrap; border-block:1px solid #98afa0; margin-bottom:1.3rem }
 .route-nav a { display:inline-flex; align-items:center; min-height:46px; font-weight:680; text-underline-offset:.25em }
 .field-layout { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.35fr); gap:1.25rem; align-items:start }
-.field-layout>section { padding:clamp(1rem,2.3vw,2rem); background:#fffef7; border:1px solid #bac8b7; border-top:5px solid #286752; border-radius:5px }
+.field-layout>section { min-width:0; padding:clamp(1rem,2.3vw,2rem); background:#fffef7; border:1px solid #bac8b7; border-top:5px solid #286752; border-radius:5px }
 .field-layout h2 { margin:.2rem 0 1rem }
 #visit { padding:0; background:transparent }
 #parts { grid-template-columns:1fr; gap:0 }
