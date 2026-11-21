@@ -44,3 +44,11 @@ button { background:#e7ede1; color:#234a39; border-color:#8ba08f }
   #visit-sheet th,#visit-sheet td {color:black;padding:.4em;border-bottom:1px solid #999}
   #visit-sheet tr {break-inside:avoid}
 }
+
+#photo-preview,#rows img{max-width:100%;max-height:16rem;object-fit:contain}
+#point-map{display:block;width:100%;height:auto;border:1px solid #9cae96;border-radius:.4rem}
+
+@media (prefers-reduced-motion:no-preference){
+  #cases details {animation: reveal-state 220ms ease-out both}
+  @keyframes reveal-state {from{opacity:.7;transform:translateY(3px)}to{opacity:1;transform:none}}
+}

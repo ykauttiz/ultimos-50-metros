@@ -38,3 +38,7 @@ No ponto de ônibus, abra a localização opcional e selecione **Usar posição 
 [Ver testes e capturas de celular e computador](https://github.com/ykauttiz/ultimos-50-metros/actions/workflows/verificar.yml). Na execução, abra o artefato **capturas-chromium** ou **capturas-firefox**. As imagens usam dados fictícios.
 
 A seleção de vistorias pode ser baixada em CSV, sem observações livres ou coordenadas. Para instalar em um navegador compatível, prepare o uso sem internet e use a opção de instalação do navegador.
+
+Mapa de coordenadas offline com destaque por ponto, seleção por teclado e descrição textual. Ele usa as coordenadas das vistorias selecionadas e funciona sem mapas externos ou imagens de ruas.
+
+Cada vistoria aceita uma foto opcional. Ao selecionar um arquivo, o caderno cria um JPEG de até 640 pixels a partir dos pixels da imagem. O backup JSON inclui a cópia. CSV, ficha impressa e GeoJSON omitem a foto.

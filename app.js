@@ -5,6 +5,34 @@ const message=text=>{el("message").textContent=text;};
 const key="ultimos-50-metros.v2",legacy="ultimos-50-metros.v1";
 const today=()=>new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);
 const empty=()=>({schemaVersion:2,records:[],actions:[]});
+let photo = null, photoVersion = 0, processingPhoto = false;
+function clearPhoto() {
+  photoVersion++; photo = null;processingPhoto = false;
+  el("visit-photo").value = "";el("photo-preview").hidden = true;
+  el("photo-preview").removeAttribute("src");el("photo-status").textContent = "";
+}
+el("visit-photo").onchange = async event => {
+  const file = event.target.files[0], id = ++photoVersion;
+  photo = null;el("photo-preview").hidden = true;processingPhoto = Boolean(file);
+  if (!file) {clearPhoto();return;}
+  let url;
+  try {
+    if (!["image/jpeg","image/png","image/webp"].includes(file.type) || file.size > 8*1024*1024) throw Error("Use JPG, PNG ou WebP de até 8 MiB.");
+    el("photo-status").textContent = "Preparando a cópia local…";
+    url = URL.createObjectURL(file);
+    const img = new Image();img.src = url;await img.decode();
+    if (id !== photoVersion) return;
+    const factor = Math.min(1,640/Math.max(img.naturalWidth,img.naturalHeight));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1,Math.round(img.naturalWidth*factor));canvas.height = Math.max(1,Math.round(img.naturalHeight*factor));
+    const ctx = canvas.getContext("2d");ctx.fillStyle = "white";ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);
+    const jpeg = canvas.toDataURL("image/jpeg",.65);
+    if (jpeg.length > 150000) throw Error("Imagem muito detalhada. Recorte o trecho e tente novamente.");
+    photo = jpeg;el("photo-preview").src=jpeg;el("photo-preview").hidden=false;
+    el("photo-status").textContent="Cópia preparada. Confira antes de salvar.";
+  } catch(err) {if (id === photoVersion) {clearPhoto();el("photo-status").textContent=err.message;}}
+  finally {if (url) URL.revokeObjectURL(url);if (id === photoVersion) processingPhoto=false;}
+};
 function read(){return Field.validate(JSON.parse(localStorage.getItem(key)??localStorage.getItem(legacy)??"[]"));}
 let selectedVisits=[];
 let demo=false,sample=empty(),pending=null,ticket=0,display=empty(),limit=50;
@@ -64,6 +92,37 @@ function draw(data) {
   updateComparison(data.records);
   drawSelection();
 }
+function paintMap() {
+  if (!el("map-panel").open) return;
+  const points = selectedVisits.filter(r => r.coordinates);
+  const select = el("map-point"), previous = select.value;
+  const unique = new Map(points.map(r => [JSON.stringify([r.point,...r.coordinates]),r]));
+  const entries = [...unique.entries()];
+  select.replaceChildren(...entries.map(([key,r]) => new Option(r.point,key)));
+  if (unique.has(previous)) select.value = previous;
+  const canvas = el("point-map"), ctx = canvas.getContext("2d");
+  const w = canvas.width, h = canvas.height;
+  ctx.fillStyle="#e5ecdb";ctx.fillRect(0,0,w,h);
+  if (!entries.length) {el("map-info").textContent="Nenhum ponto com coordenadas na seleção.";return;}
+  const chosen = unique.get(select.value);
+  const bounds = points.reduce((b,r) => {
+    const [x,y] = r.coordinates;
+    return [Math.min(b[0],x),Math.max(b[1],x),Math.min(b[2],y),Math.max(b[3],y)];
+  },[Infinity,-Infinity,Infinity,-Infinity]);
+  const [west,east,south,north] = bounds;
+  const aspect = Math.max(.01,Math.cos((south+north)*Math.PI/360));
+  const scale = Math.min((w-48)/Math.max((east-west)*aspect,.00001),(h-48)/Math.max(north-south,.00001));
+  const dot = (r,radius,color) => {
+    const [x,y] = r.coordinates;
+    ctx.beginPath();ctx.arc(w/2+(x-(west+east)/2)*aspect*scale,h/2-(y-(south+north)/2)*scale,radius,0,2*Math.PI);
+    ctx.fillStyle=color;ctx.fill();
+  };
+  for (const [,r] of entries) dot(r,5,"#345d4b");
+  dot(chosen,10,"#a14d1a");dot(chosen,4,"#fff3cd");
+  el("map-info").textContent = entries.length+" ponto(s) · "+chosen.point+" · latitude "+chosen.coordinates[1]+" · longitude "+chosen.coordinates[0];
+}
+el("map-panel").ontoggle = paintMap;
+el("map-point").onchange = paintMap;
 function drawSelection() {
   const data = display, findings = fieldIndex.findings, q = pointKey(el("search").value);
   const searched = fieldIndex[el("mode").value].filter(r => pointKey(r.point).includes(q));
@@ -76,11 +135,17 @@ function drawSelection() {
   }
   const records = priority ? searched.filter(r => r.status === priority) : searched;
   el("priority-summary").textContent = records.length + " vistoria(s) na seleção." + (priority ? " Selecione a prioridade novamente para ver todas." : "");
-  selectedVisits=records;
+  selectedVisits=records;paintMap();
   el("csv-visits").disabled = !records.length;
   el("print-visits").disabled = !records.length;
   el("geo").disabled=!records.some(r=>r.coordinates);
-  el("rows").replaceChildren(...records.slice(0,limit).map(r=>{const tr=node("tr");for(const value of [r.point,r.date,r.status,...parts.map(p=>r[p]),r.note])tr.append(node("td",value));return tr;}));
+  el("rows").replaceChildren(...records.slice(0,limit).map(r=>{const tr=node("tr");for(const value of [r.point,r.date,r.status,...parts.map(p=>r[p]),r.note])tr.append(node("td",value));
+    if (r.photo) {
+      const details=node("details"),summary=node("summary","Ver foto"),img=node("img");img.alt="Foto do trecho em "+r.point;
+      details.ontoggle=()=>{if(details.open)img.src=r.photo;else img.removeAttribute("src");};
+      details.append(summary,img);tr.lastElementChild.append(details);
+    }
+    return tr;}));
   el("more").hidden=records.length<=limit;
   el("summary").textContent=data.records.length+" vistoria(s) · "+findings.filter(i=>i.state!=="Verificada").length+" ocorrência(s) em acompanhamento";
   el("origin").textContent=demo?"Exemplo fictício":"Histórico deste navegador";
@@ -140,15 +205,19 @@ el("visit").onsubmit=e=>{e.preventDefault();try{
     if(!el("lat").value || !el("lon").value)throw Error("Informe latitude e longitude juntas.");
     r.coordinates=[el("lon").valueAsNumber,el("lat").valueAsNumber];
   }
+  if (processingPhoto) return message("Aguarde o preparo da foto.");
+  if (photo) r.photo = photo;
   inspect(r);const data=current();
   if(data.records.length && Field.identity(data.records.at(-1))===Field.identity(r) && !data.actions.some(a=>a.point===r.point && a.date===r.date))return message("Esta vistoria já consta no histórico.");
-  data.records.push(r);write(data);message(demo?"Vistoria adicionada ao exemplo.":"Vistoria salva neste navegador.");
+  const next = {...data,records:[...data.records,r]};
+  if (new Blob([JSON.stringify(next,null,2)]).size > 4*1024*1024) throw Error("Histórico acima do limite de backup de 4 MiB. Exporte o histórico atual.");
+  write(next);clearPhoto();message(demo?"Vistoria adicionada ao exemplo.":"Vistoria salva neste navegador.");
 }catch(err){message(err.message);}};
 for(const id of ["mode","search","state"])el(id).oninput=()=>{limit=50;drawSelection();};
 for(const id of ["more","moreCases"])el(id).onclick=()=>{limit+=50;drawSelection();};
 el("demo").onclick=()=>{try{
   const next=demo?read():{schemaVersion:2,records:[{point:"Praça das Flores · sentido centro",date:"2026-10-20",calçada:states[2],travessia:states[0],embarque:states[1],note:"Piso interrompido na esquina."}],actions:[]};
-  demo=!demo;if(demo)sample=next;pending=null;ticket++;el("confirm").hidden=true;draw(next);message(demo?"Você está praticando com dados fictícios.":"Seu histórico foi carregado.");
+  clearPhoto();demo=!demo;if(demo)sample=next;pending=null;ticket++;el("confirm").hidden=true;draw(next);message(demo?"Você está praticando com dados fictícios.":"Seu histórico foi carregado.");
 }catch(err){message(err.message);}};
 el("csv-visits").onclick = () => {
   const fields = ["Ponto","Data","Prioridade","Calçada","Travessia","Embarque"];

@@ -36,6 +36,9 @@ with sync_playwright() as p, TemporaryDirectory() as tmp:
         page.locator("#point").fill("Ponto fictício")
         page.locator("#lat").fill("-16.32")
         page.locator("#lon").fill("-48.95")
+        page.locator("#visit-photo").set_input_files(root / "icon-192.png")
+        expect(page.locator("#photo-preview")).to_be_visible()
+        assert page.locator("#photo-preview").get_attribute("src").startswith("data:image/jpeg;base64,")
         page.locator("#note").fill("Texto reservado ao histórico")
         page.get_by_text("Salvar vistoria",exact=True).click()
         page.get_by_role("button",name="Revisar barreira · 0").click()
@@ -55,6 +58,9 @@ with sync_playwright() as p, TemporaryDirectory() as tmp:
         manifest = page.request.get(f"http://127.0.0.1:{server.server_port}/manifest.webmanifest").json()
         for icon in manifest["icons"]:
             assert page.request.get(f"http://127.0.0.1:{server.server_port}/" + icon["src"]).ok
+        page.get_by_text("Mapa dos pontos da seleção",exact=True).click()
+        expect(page.locator("#map-info")).to_contain_text("Ponto fictício")
+        expect(page.locator("#map-info")).to_contain_text("-48.95")
         with page.expect_download() as geo:
             page.locator("#geo").click()
         import json

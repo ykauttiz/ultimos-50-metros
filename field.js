@@ -3,7 +3,7 @@ const Field = (() => {
   const model = typeof require === "function" ? require("./core") : {inspect,mergeHistory};
   const segments=["calçada","travessia","embarque"];
   const norm=s=>s.trim().normalize("NFC").toLocaleLowerCase("pt-BR");
-  const identity=r=>JSON.stringify([norm(r.point),r.date,...segments.map(p=>r[p]),r.note,r.coordinates || null]);
+  const identity=r=>JSON.stringify([norm(r.point),r.date,...segments.map(p=>r[p]),r.note,r.coordinates || null,r.photo || null]);
   const key=(point,part)=>JSON.stringify([norm(point),part]);
   function validate(data) {
     if(Array.isArray(data))data={schemaVersion:2,records:data,actions:[]};

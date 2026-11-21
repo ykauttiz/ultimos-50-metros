@@ -37,3 +37,20 @@ jobs:
           name: capturas-${{ matrix.engine }}
           path: capturas/*.png
           if-no-files-found: error
+
+  release:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'release(v2026.11.21)')
+    needs: [motor, interface]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Publicar marco testado
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create v2026.11.21 --target "$GITHUB_SHA" --title "Atualização de 21 de novembro" --notes-file RELEASE.md
+
