@@ -39,8 +39,23 @@ let demo=false,sample=empty(),pending=null,ticket=0,display=empty(),limit=50;
 function current(){return demo?sample:read();}
 function write(data){
   Field.findings(data);
-  if(demo)sample=data;else localStorage.setItem(key,JSON.stringify(data));
+  if(demo)sample=data;
+  else try{localStorage.setItem(key,JSON.stringify(data));}
+  catch(err){
+    // setItem é atômico: se falhar, o histórico salvo continua como estava.
+    const full=err?.name==="QuotaExceededError"||err?.name==="NS_ERROR_DOM_QUOTA_REACHED"||err?.code===22||err?.code===1014;
+    throw Error(full?"O navegador ficou sem espaço para salvar. Exporte o histórico e tente de novo. Nada foi alterado.":"Não foi possível salvar neste navegador. Exporte o histórico para não perder dados. Nada foi alterado.");
+  }
   draw(data);
+}
+// Informa se o navegador protegeu o armazenamento contra limpeza automática. Nunca trava: a resposta tem prazo de 3 s.
+async function storageNote(){
+  try{
+    if(!navigator.storage?.persisted)return "";
+    let kept=await navigator.storage.persisted();
+    if(!kept&&navigator.storage.persist)kept=await Promise.race([navigator.storage.persist(),new Promise(done=>setTimeout(()=>done(false),3000))]);
+    return kept?" O navegador protegeu este armazenamento.":" O navegador pode apagar estes dados se faltar espaço; exporte o histórico com frequência.";
+  }catch{return "";}
 }
 function compareVisits() {
   const target = el("visit-comparison"), key = el("compare-point").value;
@@ -210,7 +225,9 @@ el("visit").onsubmit=e=>{e.preventDefault();try{
   if(data.records.length && Field.identity(data.records.at(-1))===Field.identity(r) && !data.actions.some(a=>a.point===r.point && a.date===r.date))return message("Esta vistoria já consta no histórico.");
   const next = {...data,records:[...data.records,r]};
   if (new Blob([JSON.stringify(next,null,2)]).size > 4*1024*1024) throw Error("Histórico acima do limite de backup de 4 MiB. Exporte o histórico atual.");
-  write(next);clearPhoto();message(demo?"Vistoria adicionada ao exemplo.":"Vistoria salva neste navegador.");
+  const saved="Vistoria salva neste navegador.";
+  write(next);clearPhoto();message(demo?"Vistoria adicionada ao exemplo.":saved);
+  if(!demo)storageNote().then(note=>{if(note&&el("message").textContent===saved)message(saved+note);});
 }catch(err){message(err.message);}};
 for(const id of ["mode","search","state"])el(id).oninput=()=>{limit=50;drawSelection();};
 for(const id of ["more","moreCases"])el(id).onclick=()=>{limit+=50;drawSelection();};

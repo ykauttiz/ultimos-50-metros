@@ -93,6 +93,23 @@ with sync_playwright() as p, TemporaryDirectory() as tmp:
         page.get_by_text("Salvar vistoria",exact=True).click()
         expect(page.locator("#visit-comparison")).to_contain_text("Sem vistoria → Livre na vistoria")
         expect(page.locator("#visit-comparison")).to_contain_text("sem mudança")
+        # Armazenamento: aviso sobre persistência e falha de gravação com mensagem clara.
+        stored = "JSON.parse(localStorage.getItem('ultimos-50-metros.v2')).records.length"
+        before = page.evaluate(stored)
+        page.evaluate("""() => { Object.defineProperty(navigator,'storage',{configurable:true,value:{persisted:async()=>false,persist:async()=>true}}); }""")
+        page.locator("#parts select").nth(1).select_option("Livre na vistoria")
+        page.get_by_text("Salvar vistoria",exact=True).click()
+        expect(page.locator("#message")).to_contain_text("Vistoria salva neste navegador. O navegador protegeu este armazenamento.")
+        assert page.evaluate(stored) == before + 1
+        page.evaluate("""() => {
+          window.__setItem = Storage.prototype.setItem;
+          Storage.prototype.setItem = function(){ throw new DOMException('cheio','QuotaExceededError'); };
+        }""")
+        page.locator("#parts select").nth(2).select_option("Livre na vistoria")
+        page.get_by_text("Salvar vistoria",exact=True).click()
+        expect(page.locator("#message")).to_contain_text("ficou sem espaço")
+        page.evaluate("() => { Storage.prototype.setItem = window.__setItem; }")
+        assert page.evaluate(stored) == before + 1
         page.locator("#demo").click()
         page.locator("#cases summary").click()
         if os.environ.get("CAPTURAR_DEMO") == "1":
