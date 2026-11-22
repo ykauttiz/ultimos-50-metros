@@ -95,5 +95,6 @@ section[id], h2[id] { scroll-margin-top:1rem }
   :root[data-theme="dark"] :is(button[aria-pressed=true],.queue button[aria-current=true],#visit>button) { background: var(--accent); color: var(--surface) }
   :root[data-theme="dark"] :focus-visible { outline-color: var(--accent) }
   :root[data-theme="dark"] :is(.hero) { color: #fff9ec }
+  :root[data-theme="dark"] .skip:focus { background: var(--ink); color: var(--surface) }
 
 }

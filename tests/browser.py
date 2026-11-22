@@ -9,6 +9,43 @@ from threading import Thread
 
 from playwright.sync_api import expect, sync_playwright
 
+# Texto sem o contraste mínimo do WCAG AA (4,5:1; 3:1 para texto grande), medido nos estilos calculados.
+CONTRAST_SCAN = r"""() => {
+  const parse = c => { const m = c.match(/rgba?\(([^)]+)\)/); if (!m) return null; const p = m[1].split(/[ ,\/]+/).filter(Boolean).map(Number); return {r: p[0], g: p[1], b: p[2], a: p[3] === undefined ? 1 : p[3]}; };
+  const over = (f, b) => ({r: f.r * f.a + b.r * (1 - f.a), g: f.g * f.a + b.g * (1 - f.a), b: f.b * f.a + b.b * (1 - f.a), a: 1});
+  const lum = c => { const f = v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); }; return .2126 * f(c.r) + .7152 * f(c.g) + .0722 * f(c.b); };
+  const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); };
+  const background = el => {
+    const layers = [];
+    for (let e = el; e; e = e.parentElement) {
+      const s = getComputedStyle(e);
+      if (s.backgroundImage !== "none") return null;
+      const c = parse(s.backgroundColor);
+      if (c && c.a > 0) layers.push(c);
+      if (c && c.a >= 1) break;
+    }
+    let acc = {r: 255, g: 255, b: 255, a: 1};
+    const page = parse(getComputedStyle(document.documentElement).backgroundColor);
+    if (page && page.a > 0) acc = over(page, acc);
+    for (let i = layers.length - 1; i >= 0; i--) acc = over(layers[i], acc);
+    return acc;
+  };
+  const low = [];
+  for (const el of document.querySelectorAll("body *")) {
+    const s = getComputedStyle(el);
+    const box = el.getBoundingClientRect();
+    if (s.display === "none" || s.visibility === "hidden" || el.closest("[hidden]") || el.tagName === "OPTION") continue;
+    if (box.width < 1 || box.height < 1 || box.right <= 0 || box.bottom <= 0) continue;
+    if (![...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) continue;
+    const bg = background(el), fg = parse(s.color);
+    if (!bg || !fg) continue;
+    const size = parseFloat(s.fontSize), large = size >= 24 || (size >= 18.66 && parseInt(s.fontWeight) >= 700);
+    const value = ratio(over(fg, bg), bg);
+    if (value < (large ? 3 : 4.5)) low.push(`${el.tagName.toLowerCase()}${el.id ? "#" + el.id : ""} "${el.textContent.trim().slice(0, 24)}" ${value.toFixed(2)}`);
+  }
+  return low;
+}"""
+
 root = Path(__file__).resolve().parents[1]
 server = ThreadingHTTPServer(("127.0.0.1", 0), partial(SimpleHTTPRequestHandler, directory=root))
 Thread(target=server.serve_forever, daemon=True).start()
@@ -112,6 +149,15 @@ with sync_playwright() as p, TemporaryDirectory() as tmp:
         assert page.evaluate(stored) == before + 1
         page.locator("#demo").click()
         page.locator("#cases summary").click()
+        for mode in ("dark", "light"):
+            theme.select_option(mode)
+            page.evaluate("document.querySelectorAll('details:not([open])').forEach(d => { d.open = true; d.dataset.scan = '1' })")
+            page.evaluate("window.scrollTo(0, 0); document.querySelector('.skip').focus()")
+            page.wait_for_timeout(300)
+            low = page.evaluate(CONTRAST_SCAN)
+            assert not low, (mode, width, low)
+            page.evaluate("document.activeElement.blur(); document.querySelectorAll('details[data-scan]').forEach(d => { d.open = false; delete d.dataset.scan })")
+        theme.select_option("system")
         if os.environ.get("CAPTURAR_DEMO") == "1":
             captures = root / "capturas"
             captures.mkdir(exist_ok=True)
