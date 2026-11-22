@@ -53,6 +53,12 @@ Mapa de coordenadas offline com destaque por ponto, seleção por teclado e desc
 
 Cada vistoria aceita uma foto opcional. Ao selecionar um arquivo, o caderno cria um JPEG de até 640 pixels a partir dos pixels da imagem. O backup JSON inclui a cópia. CSV, ficha impressa e GeoJSON omitem a foto.
 
+## Privacidade, segurança e contribuição
+
+As vistorias ficam no armazenamento local do navegador. GPS e foto são opcionais. A foto vira um JPEG de até 640 pixels recriado a partir dos pixels da imagem, sem os metadados do arquivo original. O backup JSON inclui a foto; CSV, ficha impressa e GeoJSON a omitem. Evite fotografar rostos, placas e fachadas de moradias.
+
+Para relatar uma falha, veja [SECURITY.md](SECURITY.md). Para propor mudanças, veja [CONTRIBUTING.md](CONTRIBUTING.md). Use somente dados fictícios ou anonimizados em issues e pull requests.
+
 ## Publicar uma versão
 
 Atualize `RELEASE.md` com as mudanças verificadas. Para marcar uma entrega, use na branch principal um commit com o título `release(vAAAA.MM.DD) Título da atualização`. Para uma segunda edição no mesmo dia, acrescente um número à versão, como `vAAAA.MM.DD.1`. O GitHub Actions publica a release após a aprovação dos testes. Commits comuns continuam atualizando o site.

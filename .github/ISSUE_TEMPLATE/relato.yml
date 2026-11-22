@@ -1,0 +1,47 @@
+name: Relatar um problema
+description: Últimos 50 Metros calculou, exibiu ou exportou algo de forma errada.
+title: "[Problema] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use apenas dados fictícios ou anonimizados. Não cole nem anexe fotos com pessoas, rostos ou placas, endereços de moradores e coordenadas exatas de residências. Use pontos fictícios. Também não inclua tokens, senhas ou chaves.
+  - type: textarea
+    id: aconteceu
+    attributes:
+      label: O que aconteceu
+      description: Descreva o que você viu, de forma objetiva.
+    validations:
+      required: true
+  - type: textarea
+    id: esperado
+    attributes:
+      label: Resultado esperado
+    validations:
+      required: true
+  - type: textarea
+    id: passos
+    attributes:
+      label: Passos para reproduzir
+      description: Numere os passos, começando pela demonstração ou pelo arquivo fictício usado.
+    validations:
+      required: true
+  - type: textarea
+    id: exemplo
+    attributes:
+      label: Exemplo fictício que reproduz o problema
+      description: Cole um trecho mínimo e inventado, se ajudar.
+      render: text
+  - type: input
+    id: ambiente
+    attributes:
+      label: Navegador e dispositivo
+      placeholder: Firefox 140 no Windows 11, Chrome no Android
+  - type: checkboxes
+    id: dados
+    attributes:
+      label: Confirmação
+      options:
+        - label: Não incluí dados reais de terceiros, tokens, senhas nem arquivos pessoais.
+          required: true

@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Relatar uma vulnerabilidade
+    url: https://github.com/ykauttiz/ultimos-50-metros/security/policy
+    about: Veja como relatar uma falha de segurança sem expor detalhes publicamente.
