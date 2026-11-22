@@ -57,6 +57,8 @@ with sync_playwright() as p, TemporaryDirectory() as tmp:
         errors = []
         page.on("pageerror", lambda error: errors.append(str(error)))
         page.goto(f"http://127.0.0.1:{server.server_port}/")
+        assert page.evaluate("!!document.querySelector('link[rel~=icon]')"), "falta o ícone da página"
+        assert page.evaluate("(document.querySelector('meta[name=description]')?.content || '').length >= 50"), "falta a descrição da página"
         theme = page.get_by_role("combobox", name="Tema da interface")
         for mode in ("dark", "light"):
             theme.select_option(mode)
