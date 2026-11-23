@@ -6,6 +6,8 @@
 
 ## 2026-11-21
 
+Ao salvar uma vistoria, a página informa se o navegador protegeu o armazenamento contra limpeza automática. Se a gravação for recusada por falta de espaço, a mensagem é clara e o histórico anterior permanece intacto.
+
 Navegação visual revista, foco de teclado explícito, link para o portfólio e roteiro curto no README.
 
 O CSV de vistorias neutraliza também prefixos de controle e variantes Unicode que podem iniciar fórmulas em planilhas.

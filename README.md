@@ -10,7 +10,7 @@ Uma vistoria pode encontrar uma barreira na calçada antes mesmo de chegar ao po
 
 Baixe o projeto e abra **index.html**. Informe um identificador estável para o ponto (inclua o sentido), a data e o que observou. Use **Sem vistoria** se um trecho ficou por verificar. A fila destaca barreiras e usa a observação mais recente de cada ponto. No mesmo dia, o horário registrado determina a ordem. Se os horários também empatarem, a fila prioriza a última entrada na lista.
 
-Os registros são locais a este navegador e endereço. Exporte o histórico em JSON antes de limpar seus dados. A fila serve para planejar novas vistorias; uma observação pontual não certifica a acessibilidade de uma rota.
+Os registros são locais a este navegador e endereço. Exporte o histórico em JSON antes de limpar seus dados. Ao salvar, a página informa se o navegador protegeu o armazenamento contra limpeza automática; quando não protegeu, os dados podem ser apagados se faltar espaço, então exporte com frequência. Se o navegador recusar a gravação por falta de espaço, a vistoria não é salva, o histórico anterior permanece e a mensagem pede a exportação. A fila serve para planejar novas vistorias; uma observação pontual não certifica a acessibilidade de uma rota.
 
 `core.js` valida os registros e organiza a fila. `app.js` controla o formulário e a persistência. Para testar, use Node 20+ e execute `node --test`.
 
