@@ -62,3 +62,7 @@ Para relatar uma falha, veja [SECURITY.md](SECURITY.md). Para propor mudanças, 
 ## Publicar uma versão
 
 Atualize `RELEASE.md` com as mudanças verificadas. Para marcar uma entrega, use na branch principal um commit com o título `release(vAAAA.MM.DD) Título da atualização`. Para uma segunda edição no mesmo dia, acrescente um número à versão, como `vAAAA.MM.DD.1`. O GitHub Actions publica a release após a aprovação dos testes. Commits comuns continuam atualizando o site.
+
+## Integridade das exportações
+
+As exportações CSV neutralizam fórmulas com prefixos Unicode invisíveis, preservando números negativos em formato decimal.
