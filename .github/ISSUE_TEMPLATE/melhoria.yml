@@ -1,0 +1,48 @@
+name: Sugerir uma melhoria
+description: Uma necessidade real que Últimos 50 Metros ainda não atende.
+title: "[Melhoria] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use apenas dados fictícios ou anonimizados. Não cole nem anexe fotos com pessoas, rostos ou placas, endereços de moradores e coordenadas exatas de residências. Use pontos fictícios. Também não inclua tokens, senhas ou chaves.
+  - type: textarea
+    id: contexto
+    attributes:
+      label: Quem precisa disso e em que situação
+    validations:
+      required: true
+  - type: textarea
+    id: problema
+    attributes:
+      label: O que não dá para fazer hoje
+    validations:
+      required: true
+  - type: textarea
+    id: esperado
+    attributes:
+      label: Resultado esperado
+    validations:
+      required: true
+  - type: textarea
+    id: criterios
+    attributes:
+      label: Como saber que está pronto
+      description: Liste critérios que dê para verificar, de preferência com um exemplo fictício.
+  - type: dropdown
+    id: prioridade
+    attributes:
+      label: Prioridade sugerida
+      description: P0 é correção ou segurança, P1 é utilidade ou acessibilidade, P2 é diferencial.
+      options:
+        - P0
+        - P1
+        - P2
+  - type: checkboxes
+    id: dados
+    attributes:
+      label: Confirmação
+      options:
+        - label: Não incluí dados reais de terceiros, tokens, senhas nem arquivos pessoais.
+          required: true
