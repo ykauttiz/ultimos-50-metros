@@ -1,5 +1,11 @@
 # Changelog
 
+## 23 de novembro de 2026 · Validação de permissão GPS negada
+
+- Teste Chromium/Firefox confirma que negar localização não preenche o formulário nem deixa o botão travado; o usuário pode informar coordenadas manualmente.
+- Documentados os limites entre geolocalização e offline emulados e homologação em aparelho físico.
+
+
 ## 23 de novembro de 2026 · Segurança de exportação e integridade
 
 - Exportações CSV de vistorias e coordenadas neutralizam fórmulas precedidas por caracteres Unicode invisíveis, sem transformar números negativos legítimos em texto.
