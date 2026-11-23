@@ -1,5 +1,9 @@
 # Changelog
 
+## 22 de novembro de 2026 · Link de salto legível no tema escuro
+
+- O link "Ir para a vistoria", primeiro destino do Tab, tinha texto claro sobre fundo branco no tema escuro (1,5:1). Agora usa as cores do tema. O teste de navegador mede o contraste do texto visível nos dois temas e falha abaixo de 4,5:1 (3:1 para texto grande).
+
 ## 21 de novembro de 2026 · Aparência configurável
 
 - Seletor de tema automático, claro e escuro com preferência local e testes de recarga em navegador.
