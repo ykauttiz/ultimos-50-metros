@@ -79,6 +79,18 @@ with sync_playwright() as p, TemporaryDirectory() as tmp:
         assert page.evaluate("location.hash === document.querySelector('.skip').hash")
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
         page.get_by_text("Localização opcional do ponto",exact=True).click()
+        # Falha de permissão sintética: não sobrescreve campos e permite tentar de novo.
+        page.evaluate("""() => {
+          Object.defineProperty(navigator, 'geolocation', {configurable:true,value:{
+            getCurrentPosition: (success, failure) => failure({code:1, message:'PERMISSION_DENIED'})
+          }});
+        }""")
+        page.locator("#gps").click()
+        expect(page.locator("#gps-status")).to_contain_text("Posição indisponível")
+        expect(page.locator("#gps")).to_be_enabled()
+        assert page.locator("#lat").input_value() == ""
+        assert page.locator("#lon").input_value() == ""
+        page.evaluate("delete navigator.geolocation")
         if backend == "chromium":
             page.context.grant_permissions(["geolocation"])
             page.context.set_geolocation({"latitude": 1.25, "longitude": 2.5, "accuracy": 7})

@@ -66,3 +66,9 @@ Atualize `RELEASE.md` com as mudanças verificadas. Para marcar uma entrega, use
 ## Integridade das exportações
 
 As exportações CSV neutralizam fórmulas com prefixos Unicode invisíveis, preservando números negativos em formato decimal.
+
+## Validação GPS, offline e armazenamento (23/11/2026)
+
+A suíte de navegador reproduz os caminhos de localização **negada** e **permitida** com coordenadas inteiramente fictícias. Quando o usuário nega a permissão, latitude e longitude permanecem vazias, a mensagem permite entrada manual e o botão fica novamente disponível. Nos testes de Chromium, há ainda emulação de geolocalização, verificação do nível de precisão informado, exportação e restauração de backup JSON, reinicialização com rede emulada desligada e simulação de armazenamento sem espaço. Esses testes **não** comprovam precisão de GPS, quotas reais, duração do cache ou funcionamento em aparelho físico.
+
+Para homologação em campo, a [issue de validação](https://github.com/ykauttiz/ultimos-50-metros/issues/1) exige resultado em navegador e celular físicos autorizados, com dados fictícios e sem publicar coordenadas ou fotos de locais reais. Referências: [Playwright — emulação](https://playwright.dev/python/docs/emulation), [MDN — permissões de localização](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API) e [MDN — persistência de armazenamento](https://developer.mozilla.org/en-US/docs/Web/API/Storage_API/Storage_quotas_and_eviction_criteria).
