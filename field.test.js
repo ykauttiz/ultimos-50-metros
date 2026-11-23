@@ -22,3 +22,16 @@ test("CSV neutraliza fórmulas ASCII, controles e variantes Unicode",()=>{
  assert.equal(F.csvCell("＋1"),'"\'＋1"');
  assert.equal(F.csvCell('Ponto "A"'),'"Ponto ""A"""');
 });
+
+
+test("CSV protege Unicode invisível e mantém coordenadas e valores negativos numéricos",()=>{
+  for(const value of ["\u200b=1+1","\ufeff+SUM(1)","\u2060@CMD","-HYPERLINK(1)","\u2212SUM(1)"])
+    assert.ok(F.csvCell(value).startsWith('"\''),value);
+  assert.equal(F.csvCell("-16,3271"),'"-16,3271"');
+  assert.equal(F.csvCell("-49.1023"),'"-49.1023"');
+});
+test("mesmo ID de ação com outro horário é conflito, não uma duplicata idêntica",()=>{
+  const local={schemaVersion:2,records:[r],actions:[{...a,recordedAt:"2026-10-03T09:00:00.000Z"}]};
+  const imported={schemaVersion:2,records:[],actions:[{...a,recordedAt:"2026-10-03T12:00:00.000Z"}]};
+  assert.throws(()=>F.merge(local,imported),/Conflito no ID/);
+});

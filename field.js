@@ -50,7 +50,7 @@ const Field = (() => {
     const byId=new Map(current.actions.map(a=>[a.id,a]));
     for(const a of incoming.actions){
       const old=byId.get(a.id);
-      if(old && ["point","part","type","note","date"].some(k=>a[k]!==old[k]))throw Error("Conflito no ID de uma ação.");
+      if(old && ["point","part","type","note","date","recordedAt"].some(k=>a[k]!==old[k]))throw Error("Conflito no ID de uma ação.");
       if(!old)byId.set(a.id,a);
     }
     const result={schemaVersion:2,records,actions:[...byId.values()]};
@@ -69,7 +69,10 @@ const Field = (() => {
   }
   function csvCell(value) {
     let text = String(value);
-    if (/^[\t\r\n\0]|^\s*[=+@\uFF1D\uFF0B\uFF0D\uFF20-]/u.test(text)) text = "'" + text;
+    // Evita fórmulas de planilha com espaços invisíveis/Unicode sem converter números negativos em texto.
+    const unsafe = /^[\x00-\x20\x7f\u00a0\u2000-\u200f\u2028\u2029\u2060\ufeff]*[=+@\-＝＋－＠\u2212]/u.test(text) ||
+      /^[\t\r\n\0]/u.test(text);
+    if (unsafe && !/^-?\d+(?:[,.]\d+)?$/.test(text)) text = "'" + text;
     return '"' + text.replaceAll('"','""') + '"';
   }
   return {validate,findings,merge,identity,geojson,csvCell};
