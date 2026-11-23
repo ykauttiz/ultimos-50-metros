@@ -32,7 +32,7 @@ jobs:
         env:
           ENGINE: ${{ matrix.engine }}
           CAPTURAR_DEMO: "1"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: capturas-${{ matrix.engine }}
           path: capturas/*.png
